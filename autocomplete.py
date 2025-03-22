@@ -32,16 +32,12 @@ class PenyelesaiOtomatis:
 
 class AplikasiPrompt:
     def __init__(self, completer=None, lexer=PythonLexer):
-        # Inisialisasi penyelesaian otomatis
         self.penyelesai_otomatis = completer.get_completer() if completer else None
 
-        # Lexer (default menggunakan PythonLexer jika tidak disediakan)
         self.lexer = PygmentsLexer(lexer)
 
-        # Riwayat input untuk autosuggest
         self.riwayat_input = []
 
-        # Area teks
         self.area_teks = TextArea(
             lexer=self.lexer,
             prompt="» ",
@@ -51,7 +47,6 @@ class AplikasiPrompt:
             auto_suggest=AutoSuggestFromHistory(),
         )
 
-        # Konten utama
         self.konten_utama = FloatContainer(
             content=HSplit(
                 [
@@ -67,20 +62,15 @@ class AplikasiPrompt:
             ],
         )
 
-        # Pengikatan tombol
         self.pengikatan_tombol = KeyBindings()
 
         @self.pengikatan_tombol.add("enter")
         def _tekan_enter(event):
-            # Simpan teks yang dimasukkan ke riwayat
             teks_input = self.area_teks.text
-            if teks_input.strip():  # Jangan simpan input kosong
+            if teks_input.strip(): 
                 self.riwayat_input.append(teks_input)
-            # Kosongkan buffer setelah Enter
             self.area_teks.buffer.reset()
-            # Update history untuk AutoSuggestFromHistory
             self.area_teks.buffer.history.append_string(teks_input)
-            # Keluar dari aplikasi dan kembalikan teks
             event.app.exit(result=teks_input)
 
         @self.pengikatan_tombol.add('c-q')
@@ -103,7 +93,6 @@ class AplikasiPrompt:
             },
         )
 
-        # Aplikasi
         self.aplikasi = Application(
             layout=Layout(self.konten_utama, focused_element=self.area_teks),
             key_bindings=self.pengikatan_tombol,
@@ -119,7 +108,6 @@ class AplikasiPrompt:
 
 
 if __name__ == "__main__":
-    # Daftar kata kunci dan meta data untuk penyelesaian otomatis
     kata_kunci = [
         "impor",
         "dari",
@@ -133,20 +121,16 @@ if __name__ == "__main__":
         "menggunakan_headers : -: 0": "│ tertutup ...",
     }
 
-    # Buat instance PenyelesaiOtomatis
     penyelesai_otomatis = PenyelesaiOtomatis(kata_kunci, meta_dict)
 
-    # Pilih lexer: PythonLexer atau HtmlLexer
-    lexer_pilihan = HtmlLexer  # Ganti dengan PythonLexer jika ingin menggunakan PythonLexer
-
+    lexer_pilihan = HtmlLexer  
     lexer = PythonLexer
 
-    # Buat instance AplikasiPrompt dengan penyelesaian otomatis dan lexer pilihan
     app = AplikasiPrompt(completer=penyelesai_otomatis, lexer=lexer)
 
     while True:
-        hasil = app.jalankan()  # Menjalankan aplikasi dan mendapatkan input
-        if hasil == 1:  # Jika pengguna menekan Ctrl+Q
+        hasil = app.jalankan()  
+        if hasil == 1: 
             print("Keluar dari aplikasi.")
             break
         print(f"Teks yang dimasukkan: {hasil}")
